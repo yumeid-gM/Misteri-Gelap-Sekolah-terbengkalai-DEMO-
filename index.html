@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YumeID - Misteri Sekolah Berhantu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent !important; -webkit-touch-callout: none; user-select: none; }
+        button:focus, div:focus, a:focus, *:focus { outline: none !important; box-shadow: none !important; }
+
+        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; overflow: hidden; touch-action: none; }
+        .fullscreen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #000; }
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .p-4 { padding: 2rem; max-width: 800px; line-height: 1.5; font-size: 1.2rem;}
+        .text-red { color: #ff3333; font-family: 'Creepster', cursive; letter-spacing: 2px;}
+        .blink { animation: blinker 1.5s linear infinite; font-size: 1.2rem;}
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        #bg-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+        .splash-screen { position: absolute; opacity: 0; transition: opacity 1s ease-in-out; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; z-index: 10; }
+        .splash-screen.active { opacity: 1; }
+        #splash-tap.active { pointer-events: auto; cursor: pointer; }
+        #splash-logo img { max-width: 250px; height: auto; object-fit: contain; }
+        #splash-extra img { max-width: 80vw; max-height: 80vh; object-fit: contain; }
+        #splash-tap { background-image: url('assets/tap_to_start.png'); background-size: cover; background-position: center; background-repeat: no-repeat; }
+
+        .glitch { position: relative; font-size: 5rem; font-weight: bold; color: white; letter-spacing: 5px; }
+        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; }
+        .glitch::before { left: 3px; text-shadow: -2px 0 red; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); animation: glitch-anim-1 2s infinite linear alternate-reverse; }
+        .glitch::after { left: -3px; text-shadow: -2px 0 blue; clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); animation: glitch-anim-2 2s infinite linear alternate-reverse; }
+        @keyframes glitch-anim-1 { 0% { clip-path: inset(20% 0 80% 0); } 20% { clip-path: inset(60% 0 10% 0); } 40% { clip-path: inset(40% 0 50% 0); } 60% { clip-path: inset(80% 0 5% 0); } 80% { clip-path: inset(10% 0 70% 0); } 100% { clip-path: inset(30% 0 50% 0); } }
+        @keyframes glitch-anim-2 { 0% { clip-path: inset(10% 0 60% 0); } 20% { clip-path: inset(30% 0 20% 0); } 40% { clip-path: inset(70% 0 10% 0); } 60% { clip-path: inset(20% 0 50% 0); } 80% { clip-path: inset(50% 0 30% 0); } 100% { clip-path: inset(5% 0 80% 0); } }
+
+        .menu-container-custom { position: absolute; left: 8%; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 20; width: 260px; }
+        .menu-btn-custom { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.25); color: #d1d1d1; padding: 12px 20px; font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; text-align: center; position: relative; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8); }
+        .menu-btn-custom:hover { background: rgba(120, 0, 0, 0.5); border-color: #ff3333; color: #fff; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5), inset 0 0 8px rgba(255, 0, 0, 0.3); }
+
+        .menu-box { background: rgba(20, 20, 20, 0.95); padding: 30px; border: 2px solid #333; border-radius: 10px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 20; }
+        .menu-box button { display: block; width: 250px; margin: 10px auto; padding: 12px; background: #000; color: #fff; border: 1px solid #555; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; }
+        .menu-box button:hover { background: #cc0000; border-color: #ff0000; }
+        .menu-box button.locked { color: #555; background: #111; cursor: not-allowed; }
+
+        .character-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; margin-bottom: 20px; }
+        .char-card { background: rgba(0, 0, 0, 0.6); border: 1px solid #444; padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; color: #ddd; font-weight: bold; letter-spacing: 1px; }
+        .char-card:hover { border-color: #ff3333; background: rgba(150, 0, 0, 0.4); color: #fff; transform: scale(1.03); box-shadow: 0 0 10px rgba(255, 0, 0, 0.4); }
+
+        #biodata-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        #biodata-modal img { max-width: 90vw; max-height: 85vh; object-fit: contain; border: 2px solid #555; box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+
+        #game-screen { overflow: hidden; }
+        #game-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; z-index: 1; }
+        
+        .sprite-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 2; display: flex; justify-content: space-around; align-items: flex-end; pointer-events: none; }
+        .char-sprite { height: 88%; max-width: 45%; object-fit: contain; object-position: bottom; transition: all 0.3s ease; filter: drop-shadow(0 0 10px rgba(0,0,0,0.7)); }
+
+        #ingame-controls { position: absolute; top: 15px; right: 20px; z-index: 50; display: flex; gap: 10px; }
+        .control-btn { background: rgba(0, 0, 0, 0.65); border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; padding: 6px 14px; font-size: 0.85rem; letter-spacing: 1.5px; font-weight: bold; cursor: pointer; border-radius: 4px; transition: all 0.2s; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
+        .control-btn:hover { background: #aa0000; border-color: #ff3333; }
+        .control-btn.active-mode { background: #ff3333; color: #000; border-color: #fff; }
+
+        .overlay-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; justify-content: center; align-items: center; }
+
+        #log-box { width: 80%; max-width: 750px; height: 75vh; background: rgba(15, 15, 15, 0.95); border: 2px solid #555; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); }
+        #log-content { flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; white-space: normal; word-break: normal; }
+        .log-entry { border-bottom: 1px solid #333; padding-bottom: 8px; font-size: 0.95rem; line-height: 1.4; user-select: text; }
+        .log-speaker { font-weight: bold; color: #ff6666; margin-bottom: 3px; }
+
+        .shake-effect { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-4px, -4px, 0); } 20%, 80% { transform: translate3d(6px, 6px, 0); } 30%, 50%, 70% { transform: translate3d(-10px, -8px, 0); } 40%, 60% { transform: translate3d(10px, 8px, 0); } }
+
+        #jumpscare-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 999; display: flex; justify-content: center; align-items: center; }
+        #jumpscare-img { max-width: 90vw; max-height: 90vh; width: auto; height: auto; object-fit: contain; object-position: center; animation: jumpscare-flash 0.1s infinite alternate; }
+        @keyframes jumpscare-flash { 0% { transform: scale(1); filter: brightness(1); } 100% { transform: scale(1.08); filter: brightness(1.5) contrast(1.2); } }
+
+        #ui-container { position: absolute; bottom: 0; width: 100%; height: 35%; z-index: 4; display: flex; justify-content: center; align-items: center; padding-bottom: 2%; }
+        #text-box-bg { position: relative; width: 95%; height: 90%; max-width: 900px; background: transparent; }
+        #text-box-bg img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.95; }
+        
+        #speaker-name { position: absolute; top: 12px; left: 45px; font-weight: bold; font-size: 1.3rem; color: #ff6666; text-shadow: 2px 2px 4px #000; display: flex; gap: 10px; align-items: baseline; }
+        #action-tag { font-size: 0.95rem; font-style: italic; color: #ffcc00; text-shadow: 1px 1px 2px #000; opacity: 0.9; }
+        
+        #dialogue-text { position: absolute; top: 52px; left: 45px; right: 45px; font-size: 1.2rem; line-height: 1.5; text-shadow: 1px 1px 2px #000; white-space: pre-wrap; word-wrap: break-word; word-break: normal; }
+        #next-indicator { position: absolute; bottom: 15px; right: 30px; color: #ff3333; }
+        #tap-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
+
+        #choice-container { position: absolute; top: -190px; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        .choice-btn { background: rgba(20, 0, 0, 0.95); border: 1px solid #ff3333; color: #fff; padding: 12px 25px; margin: 6px; font-size: 1.1rem; cursor: pointer; border-radius: 5px; width: 80%; max-width: 600px; transition: all 0.2s; box-shadow: inset 0 0 10px #000; }
+        .choice-btn:hover { background: #ff3333; color: #000; border-color: #fff; }
+
+        #episode-end-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.92); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; text-align: center; }
+        #episode-end-screen h1 { font-family: 'Creepster', cursive; color: #ff3333; font-size: 3.5rem; letter-spacing: 3px; margin-bottom: 5px; text-shadow: 0 0 15px rgba(255,0,0,0.6); }
+        #episode-end-screen p { color: #ccc; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 20px; }
+        .end-btn { background: rgba(20, 0, 0, 0.9); border: 1px solid #ff3333; color: #fff; padding: 14px 25px; font-size: 1.1rem; cursor: pointer; border-radius: 6px; width: 320px; max-width: 80vw; transition: all 0.3s; box-shadow: inset 0 0 10px #000; letter-spacing: 1px; font-weight: bold; }
+        .end-btn:hover { background: #ff3333; color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,0,0,0.8); }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-container" class="fullscreen">
+        <div id="splash-glitch" class="splash-screen active"><h1 class="glitch" data-text="YumeID">YumeID</h1></div>
+        <div id="splash-logo" class="splash-screen"><img src="assets/images/splash_screen_logo.png" alt="Logo"></div>
+        <div id="splash-warning" class="splash-screen text-center p-4"><h2 class="text-red">PERINGATAN</h2><p>Game ini mengandung unsur horror dan mistis, dan mengandung jump scare. Tidak disarankan untuk pemain dengan gangguan mental dan lemah jantung!</p></div>
+        <div id="splash-age" class="splash-screen text-center"><h1 class="text-red">16+</h1><p>Untuk usia 16 tahun ke atas</p></div>
+        <div id="splash-extra" class="splash-screen"><img src="assets/splash2.png" alt="Splash 2"></div>
+        <div id="splash-tap" class="splash-screen text-center"><p class="blink" style="position: absolute; bottom: 10%; text-shadow: 2px 2px 4px #000;">Tekan di mana saja untuk mulai</p></div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="fullscreen hidden">
+        <video id="bg-video" autoplay loop muted playsinline>
+            <source src="assets/menubg.mp4" type="video/mp4">
+        </video>
+        <div class="menu-container-custom">
+            <button class="menu-btn-custom" onclick="reqFullscreen(); showEpisodeSelect()">NEW GAME</button>
+            <button class="menu-btn-custom" onclick="reqFullscreen(); loadGame()">LOAD GAME</button>
+            <button class="menu-btn-custom" onclick="reqFullscreen(); showExtras()">EXTRAS</button>
+            <button class="menu-btn-custom" onclick="reqFullscreen(); alert('Menu Pengaturan belum tersedia.')">SETTINGS</button>
+            <button class="menu-btn-custom" onclick="if(confirm('Apakah Anda yakin ingin keluar?')) window.close();">QUIT</button>
+        </div>
+    </div>
+
+    <!-- Episode Select -->
+    <div id="episode-select" class="fullscreen hidden">
+        <div class="menu-box">
+            <h2>Pilih Episode</h2>
+            <button id="ep1-btn" onclick="reqFullscreen(); startEpisode(1)">Episode 1: Awal Petaka</button>
+            <button id="ep2-btn" class="locked" onclick="reqFullscreen(); startEpisode(2)">Episode 2: Terkunci 🔒</button>
+            <button onclick="reqFullscreen(); showMainMenu()">Kembali</button>
+        </div>
+    </div>
+
+    <!-- Extras Screen -->
+    <div id="extras-screen" class="fullscreen hidden">
+        <div class="menu-box" style="width: 85%; max-width: 800px;">
+            <h2>Biodata Karakter</h2>
+            <p style="font-size: 0.9rem; color: #aaa; margin-top: 5px;">Pilih karakter untuk melihat profil lengkap</p>
+            <div class="character-grid">
+                <div class="char-card" onclick="viewBiodata('dio.png')">DIO</div>
+                <div class="char-card" onclick="viewBiodata('dinda.png')">DINDA</div>
+                <div class="char-card" onclick="viewBiodata('duwi.png')">DUWI</div>
+                <div class="char-card" onclick="viewBiodata('elisa.png')">ELISA</div>
+                <div class="char-card" onclick="viewBiodata('eriko.png')">ERIKO</div>
+                <div class="char-card" onclick="viewBiodata('raka.png')">RAKA</div>
+            </div>
+            <button onclick="reqFullscreen(); showMainMenu()">Kembali</button>
+        </div>
+    </div>
+
+    <div id="biodata-modal" class="hidden" onclick="closeBiodata()">
+        <img id="biodata-img" src="" alt="Biodata Karakter">
+        <p style="margin-top: 15px; font-size: 0.9rem; color: #ccc;">Klik di mana saja untuk menutup</p>
+    </div>
+
+    <div id="jumpscare-overlay" class="hidden">
+        <img id="jumpscare-img" src="assets/images/hantu/jumpscere.png" alt="Jumpscare">
+    </div>
+
+    <!-- Modal Pause Menu -->
+    <div id="pause-modal" class="overlay-modal hidden">
+        <div class="menu-box">
+            <h2>PAUSE GAME</h2>
+            <button onclick="reqFullscreen(); saveGameInGame()">Save Progress Biasa</button>
+            <button onclick="reqFullscreen(); loadGameInGame()">Load Progress Biasa</button>
+            <button onclick="reqFullscreen(); loadCheckpointInGame()" style="background: #550000; border-color: #ff3333; margin-top: 20px;">Load Terakhir dari Checkpoint</button>
+            <button onclick="reqFullscreen(); alert('Menu Setting belum tersedia.')">Setting</button>
+            <button onclick="reqFullscreen(); resumeGame()">Resume</button>
+            <button onclick="reqFullscreen(); exitToMainMenu()">Kembali ke Menu Utama</button>
+        </div>
+    </div>
+
+    <!-- Modal Log Riwayat Percakapan -->
+    <div id="log-modal" class="overlay-modal hidden">
+        <div id="log-box">
+            <h2>RIWAYAT PERCAKAPAN</h2>
+            <hr style="border-color: #444; margin: 10px 0;">
+            <div id="log-content"></div>
+            <button class="menu-btn-custom" style="width: 100%; margin-top: 5px;" onclick="reqFullscreen(); closeLog()">TUTUP</button>
+        </div>
+    </div>
+    
+    <!-- MODAL CHECKPOINT PAKSA -->
+    <div id="checkpoint-modal" class="overlay-modal hidden">
+        <div class="menu-box" style="border-color: #ffaa00; box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);">
+            <h2 style="color: #ffcc00; margin-bottom: 10px; font-size: 1.8rem; letter-spacing: 2px;">TITIK PENTING!</h2>
+            <p style="font-size: 0.95rem; color: #ddd; margin-bottom: 25px; line-height: 1.5;">Keputusan yang akan kamu ambil selanjutnya akan berdampak besar pada kelangsungan hidup karakter.<br><br>Kamu <b>wajib</b> menyimpan data permainan (Checkpoint) di titik ini agar bisa mengulang jika terjadi hal buruk.</p>
+            <button onclick="reqFullscreen(); saveSpecialCheckpoint()" style="background: #aa0000; border-color: #ff3333; font-weight: bold; width: 100%;">SIMPAN CHECKPOINT & LANJUTKAN</button>
+        </div>
+    </div>
+
+    <!-- Episode Complete / End Screen -->
+    <div id="episode-end-screen" class="hidden">
+        <h1 id="end-screen-title">EPISODE 1</h1>
+        <p>BERSAMBUNG...</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="end-btn" onclick="reqFullscreen(); nextEpisodeAction()">Lanjut ke episode selanjutnya</button>
+            <button class="end-btn" onclick="reqFullscreen(); showMainMenu()">Kembali ke menu utama</button>
+            <button class="end-btn" onclick="reqFullscreen(); restartCurrentEpisode()">Ulangi episode</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="fullscreen hidden">
+        <div id="game-bg"></div>
+        <div id="ingame-controls">
+            <button class="control-btn" onclick="reqFullscreen(); openLog()">LOG</button>
+            <button id="auto-btn" class="control-btn" onclick="reqFullscreen(); toggleAuto()">AUTO</button>
+            <button id="skip-btn" class="control-btn" onclick="reqFullscreen(); toggleSkip()">SKIP</button>
+            <button class="control-btn" onclick="reqFullscreen(); openPauseMenu()">PAUSE</button>
+        </div>
+        <div class="sprite-container">
+            <img id="sprite-left" class="char-sprite hidden" src="" alt="">
+            <img id="sprite-right" class="char-sprite hidden" src="" alt="">
+        </div>
+        <div id="ui-container">
+            <div id="choice-container" class="hidden"></div>
+            <div id="text-box-bg">
+                <img src="assets/text_box.png" alt="" onerror="this.style.display='none'">
+                <div id="speaker-name">
+                    <span id="speaker-text">Nama Karakter</span>
+                    <span id="action-tag"></span>
+                </div>
+                <div id="dialogue-text">Teks dialog...</div>
+                <div id="next-indicator" class="blink">▼</div>
+            </div>
+        </div>
+        <div id="tap-overlay" onclick="reqFullscreen(); progressStory()"></div>
+    </div>
+
+    <script>
+        const CHAR_ASSETS = {
+            dinda: { netral: 'assets/images/karakter/dinda_netral.png', ngambek: 'assets/images/karakter/dinda_ngambek.png', senyum: 'assets/images/karakter/dinda_senyum.png', takut: 'assets/images/karakter/dinda_takut.png' },
+            dio: { marah: 'assets/images/karakter/dio_marah.png', netral: 'assets/images/karakter/dio_netral.png', senyum: 'assets/images/karakter/dio_senyum.png', takut: 'assets/images/karakter/dio_takut.png' },
+            duwi: { marah: 'assets/images/karakter/duwi_marah.png', netral: 'assets/images/karakter/duwi_netral.png', senyum: 'assets/images/karakter/duwi_senyum.png', takut: 'assets/images/karakter/duwi_takut.png' },
+            elisa: { netral: 'assets/images/karakter/elisa_netral.png', ngambek: 'assets/images/karakter/elisa_ngambek.png', senyum: 'assets/images/karakter/elisa_senyum.png', takut: 'assets/images/karakter/elisa_takut.png' },
+            eriko: { marah: 'assets/images/karakter/eriko_marah.png', netral: 'assets/images/karakter/eriko_netral.png', senyum: 'assets/images/karakter/eriko_senyum.png', takut: 'assets/images/karakter/eriko_takut.png' },
+            raka: { marah: 'assets/images/karakter/raka_marah.png', netral: 'assets/images/karakter/raka_netral.png', senyum: 'assets/images/karakter/raka_senyum.png', takut: 'assets/images/karakter/raka_takut.png' },
+            gadis_kecil: { marah: 'assets/images/karakter/gadis_kecil_takdikenal_marah.png', netral: 'assets/images/karakter/gadis_kecil_takdikenal_netral.png' }
+        };
+
+        // --- SISTEM SUARA (AUDIO MANAGER) ---
+        let currentBGM = null;
+        let currentBGMPath = "";
+
+        function playBGM(path) {
+            if (!path) return;
+            if (currentBGMPath === path && currentBGM && !currentBGM.paused) return;
+            
+            if (currentBGM) {
+                currentBGM.pause();
+                currentBGM.currentTime = 0;
+            }
+            
+            currentBGMPath = path;
+            currentBGM = new Audio(path);
+            currentBGM.loop = true;
+            currentBGM.volume = 0.5;
+            currentBGM.play().catch(e => console.log("Autoplay BGM tertahan:", e));
+        }
+
+        function stopBGM() {
+            if (currentBGM) {
+                currentBGM.pause();
+                currentBGM.currentTime = 0;
+                currentBGM = null;
+                currentBGMPath = "";
+            }
+        }
+
+        function playSFX(path) {
+            if (!path) return;
+            let sfx = new Audio(path);
+            sfx.volume = 0.85;
+            sfx.play().catch(e => console.log("SFX tertahan:", e));
+        }
+
+        const episode1 = [
+            // PART 1
+            { bgm: "assets/music/tema_mengelidiki.mp3", bg: "assets/images/bg/kelas_12-2_trisakti.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Pagi yang biasa di SMA Negeri Trisakti. Udara pagi masih terasa dingin, tapi suasana di kelas 12-2 sudah panas oleh gosip murahan. Aku, Dio, hanya bisa menyandarkan kepala di meja sambil mendengarkan celotehan teman-teman sekelasku." },
+            { speaker: "Murid A", text: "(Berbisik dengan nada antusias) \"Eh, kalian udah denger berita terbaru belum? Soal SMA terbengkalai yang ada di Desa Wahyusakti?\"" },
+            { speaker: "Murid B", text: "(Merinding) \"Oh, yang katanya angker banget itu? Denger-denger ada rombongan anak kampus yang coba bikin konten penelusuran di sana minggu lalu...\"" },
+            { speaker: "Murid A", text: "\"Iya! Dan kabarnya... sampai sekarang mereka belum pulang. Nggak ada yang tahu mereka ke mana. Polisi aja masih nyari!\"" },
+            { speaker: "Dio", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.eriko.senyum, text: "(Monolog) Gosip horor. Selalu jadi menu sarapan favorit anak-anak di kelas ini. Aku melirik ke arah meja di sudut ruangan. Di sana, Eriko—atau yang biasa kami panggil Riko—sedang sibuk menggulir layar ponselnya." },
+            { speaker: "Eriko", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.eriko.senyum, text: "(Bicara sendiri dengan suara pelan) \"Desa Wahyusakti... SMA terbengkalai... Hilang tanpa jejak? Wah, ini sih gila. Engagement-nya pasti meledak kalau dibikin live streaming.\"" },
+            { speaker: "Dio", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.eriko.senyum, text: "(Monolog) Melihat seringai di wajah Riko, aku sudah punya firasat buruk. Otaknya pasti sedang merencanakan sesuatu yang merepotkan." },
+            
+            { bg: "assets/images/bg/klub_sastra_trisakti.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Ruang Klub Sastra. Markas rahasia kami. Meski namanya klub sastra, kami lebih sering menggunakan ruangan ini untuk sekadar makan siang atau numpang tidur." },
+            { speaker: "Dio", spriteLeft: CHAR_ASSETS.dinda.senyum, spriteRight: CHAR_ASSETS.elisa.netral, text: "(Monolog) Dinda sedang membaca majalah, Raka membaca buku tebal, Duwi mengunyah keripik, dan Elisa sedang menyiram tanaman pot di dekat jendela." },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, shake: true, text: "(Napas terengah-engah, wajah bersemangat) \"GUYS! Berhenti dengan aktivitas membosankan kalian! Aku bawa berita besar!\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.marah, shake: true, text: "(Tersedak keripik) \"Uhuk! Uhuk! Astaga, Riko! Jantungan aku! Nggak bisa buka pintu pelan-pelan, ya?!\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "(Menutup bukunya perlahan, menatap dingin dari balik kacamata) \"Kalau ini soal rumor murahan yang beredar di kelas tadi pagi, pintu keluarnya ada di belakangmu, Rik.\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.marah, text: "(Cemberut) \"Yah, elah, Ka. Dengerin dulu! Ini bukan rumor sembarangan. Kalian tahu kasus hilangnya anak-anak yang bikin konten di Desa Wahyusakti, kan?\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.senyum, text: "(Menutup majalahnya, matanya berbinar penasaran) \"Aku dengar! Katanya sekolah itu dulunya ditutup paksa karena ada insiden berdarah puluhan tahun lalu, kan? Wah, misterius banget!\"" },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Berbalik dari jendela, memeluk pot siramannya, wajahnya cemas) \"Aku... aku tidak suka membicarakan tempat itu. Auranya terasa sangat gelap, meskipun hanya dari cerita...\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menghela napas) \"Terus? Apa hubungannya berita itu sama kita, Rik? Jangan bilang...\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Menggebrak meja perlahan, tersenyum lebar) \"Tepat sekali, Dio! Nanti malam, kita bakal bikin sejarah. Kita akan ekspedisi langsung ke SMA terbengkalai di Desa Wahyusakti!\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Berdiri panik, keripiknya tumpah) \"HAAAH?! KAU GILA?! NGGAK! AKU NGGAK MAU IKUT! Aku masih mau hidup, masih mau nikah, masih mau—\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.marah, text: "(Memotong ucapan Duwi, menghela napas panjang) \"Ini tindakan bodoh, Riko. Masuk tanpa izin ke properti terbengkalai itu melanggar hukum. Belum lagi kalau bangunan itu rapuh dan runtuh.\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "\"Aduh, Raka, logika terus yang dipakai. Ini soal adrenalin! Soal pembuktian! Dan bayangkan... kalau kita berhasil rekam sesuatu yang gila, channel kita bakal viral! Dinda, kau pasti mau ikut, kan?\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.senyum, text: "(Tersenyum menantang) \"Sejujurnya? Aku penasaran banget. Kalau cuma diam di sekolah, hidup kita terlalu membosankan. Aku ikut!\"" },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Menunduk, suaranya bergetar) \"Ta-tapi... bagaimana kalau cerita hilangnya orang-orang itu benar? Sesuatu di sana mungkin sedang... menunggu.\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, text: "\"Tuh kan! Elisa aja udah merinding! Udahlah, mending kita mabar game aja di warnet nanti malam!\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Menatap Dio, memohon) \"Dio, ayolah. Kau ketuanya di sini. Kau yang bisa menengahi. Kita cuma lihat-lihat, rekam bentar, kalau ada apa-apa kita langsung lari. Janji!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Seperti biasa, semua keputusan akhir diserahkan padaku. Kalau aku menolak, Riko dan Dinda pasti akan nekat pergi berdua, dan itu jauh lebih berbahaya. Kalau aku setuju... aku harus memastikan kawan-kawanku selamat." },
+            { speaker: "Dio", text: "Apa yang harus aku katakan?", choices: [ { text: "\"Baiklah, aku ikut. Tapi aku yang pegang kendali.\"", jump: "choice_a" }, { text: "\"Ini ide gila, tapi aku gak bisa biarin kalian pergi sendiri.\"", jump: "choice_b" } ] },
+            { id: "choice_a", speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "\"Mantap! Itulah kapten kita!\"", jump: "merge" },
+            { id: "choice_b", speaker: "Raka", sprite: CHAR_ASSETS.raka.senyum, text: "\"Alasan yang rasional. Aku juga berpikiran sama, Dio.\"", jump: "merge" },
+            { id: "merge", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Jam berapa rencanamu, Rik?\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Mengepalkan tangan kegirangan) \"Yes! Jam 10 malam! Kita kumpul di pertigaan dekat gerbang Desa Wahyusakti. Aku bawa kamera dan senter!\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, text: "(Lemas, merosot ke kursi) \"Matilah kita...\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "(Merapikan kacamatanya) \"Baiklah. Aku ikut. Tapi ingat, kalau kurasa situasinya membahayakan nyawa, aku akan menarik kalian semua pulang paksa. Mengerti?\"" },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Mengangguk pelan) \"Kalau kalian semua pergi... aku juga ikut. Aku mungkin bisa... merasakan kalau ada bahaya yang mendekat.\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.senyum, text: "(Melompat kegirangan) \"Asyik! Ekspedisi Klub Sastra! Jangan lupa pakai baju hangat, ya!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Dan begitulah. Rasa penasaran mengalahkan akal sehat kami. Saat itu, kami tidak tahu bahwa keputusan yang dibuat di ruang klub siang ini, akan mengubah hidup kami... atau bahkan mengakhirinya." },
+            
+            // PART 2
+            { bgm: "assets/music/tema2.mp3", bg: "assets/images/bg/wahyu_halaman_sekolah.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Jam di ponselku jelas menunjukkan pukul 22:00 WIB. Tapi, begitu kami berdiri tepat di depan gerbang berkarat SMA Wahyusakti, ada yang tidak masuk akal." },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.marah, text: "(Mengernyitkan dahi, menatap langit di atas bangunan sekolah) \"Ini... tidak logis. Perhatikan langit di atas lapangan sekolah itu. Kenapa warnanya jingga kemerahan?\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Menggosok matanya berkali-kali) \"I-iya! Kok kayak masih jam 5 sore?! Padahal di luar gerbang ini gelap gulita! Kita pulang aja yuk, guys! Ini udah nggak beres!\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Menyalakan kamera, wajahnya berseri-seri) \"Gilaaa! Baru sampai gerbang udah disuguhi anomali keren begini! Ini pasti efek cahaya dari kota atau gas rawa. Ayo, kita masuk!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Sebelum Riko melangkah maju, sesosok bayangan kecil muncul dari balik pilar gerbang." },
+            { bgm: "assets/music/tema_anak_kecil.mp3", speaker: "Dio", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Monolog) Seorang anak perempuan kecil pucat dengan gaun lusuh era lama, menatap mereka dengan tatapan kosong." },
+            { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Suaranya datar, tanpa emosi) \"Jangan masuk... Tempat ini bukan untuk kalian. Ada ruangan gaib di dalam sana... yang masuk, tidak akan pernah keluar.\"" },
+            { speaker: "Elisa", spriteLeft: CHAR_ASSETS.elisa.takut, spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Mundur selangkah, memegang lengan Dio) \"Di-Dio... anak itu... kakinya...\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Menurunkan kameranya sedikit, tertawa canggung) \"Hahaha, halo Dek. Malam-malam main di sini, rumahnya di mana? Kita cuma mau bikin video sebentar kok, habis itu pulang.\"" },
+            { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.marah, text: "(Tidak mempedulikan Eriko, menatap tajam ke arah Dio) \"Apapun yang terjadi, aku sudah memperingatkan. Jangan menyesal.\"" },
+            { bgm: "assets/music/tema2.mp3", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Aku reflek menutup mata karena debu. Namun saat kubuka mataku sedetik kemudian... gadis kecil itu sudah tidak ada. Hilang tanpa jejak di area yang terbuka lebar." },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Gemetar hebat, memeluk tas ranselnya) \"Hi-hilang... Dia hilang, woy! Yakin nih kita beneran mau masuk?! Itu tadi jelas-jelas bukan manusia!\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "(Memperbaiki letak kacamatanya, meski wajahnya sedikit tegang) \"Mungkin dia lari ke semak-semak saat kita menutup mata. Kecepatannya mengesankan, tapi... mari kita tetap waspada.\"" },
+            { speaker: "Dio", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.elisa.takut, text: "(Monolog) Elisa tiba-tiba memegang kepalanya, meringis kesakitan." },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, shake: true, text: "\"Akh...\"" },
+            { speaker: "Dinda", spriteLeft: CHAR_ASSETS.dinda.takut, spriteRight: CHAR_ASSETS.elisa.takut, text: "(Panik) \"Elisa? Kamu kenapa? Mukamu pucat banget!\"" },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Napasnya agak berat) \"Kepalaku... tiba-tiba pusing sekali. A-ada yang nggak beres di sini. Aku merasa... dari kegelapan di dalam sana, ada puluhan mata yang sedang memperhatikan kita...\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Menepuk bahu Elisa, tersenyum meremehkan) \"Aduh, Elisa... Kamu kebanyakan nonton film horor sih. Sugesti itu namanya. Tenang aja, ada aku dan Raka yang bakal jagain kalian!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Tetap rapatkan barisan. Riko, jangan jauh-jauh. Kita masuk sekarang.\"" },
+            
+            // LOBI & LOKER (INVESTIGASI)
+            { bgm: "assets/music/alam_gaib.mp3", bg: "assets/images/bg/wahyu_lobi.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Saat kami melangkah masuk ke lobi, ilusi sore hari di luar tadi langsung menghilang. Kegelapan pekat menyambut kami. Bau debu, kayu lapuk, dan sesuatu yang amis menguar di udara." },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Monolog Batin) Udaranya... pekat sekali. Berat. Seperti ada yang bernapas di leherku. Kenapa mereka tidak merasakannya? Auranya merah kehitaman... Kita tidak seharusnya ada di sini." },
+            { speaker: "Dio", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.elisa.takut, text: "(Monolog) Bagi kami, ini hanya bangunan tua yang seram. Tapi melihat Elisa yang terus gemetar sambil menunduk, aku tahu dia melihat hal-hal yang tidak bisa kami lihat." },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Menjerit histeris) \"HWAAAAA! APA ITU?!\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.marah, text: "(Menghela napas) \"Itu cuma tikus, Duwi. Tenanglah. Jangan membuat keributan yang tidak perlu.\"" },
+            { bg: "assets/images/bg/wahyu_loker.png", speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Tiba-tiba berhenti melangkah, matanya terbelalak menatap deretan loker di ujung koridor) \"T-tunggu... Di sana... Ada wanita berdiri...\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "Apa yang harus dilakukan?", choices: [
+                { text: "Periksa area sekitar loker", jump: "quest_loker_investigate" },
+                { text: "Abaikan dan tetap jalan bersama", jump: "quest_loker_ignore" }
+            ]},
+
+            { id: "quest_loker_ignore", speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "\"Pilihan bijak. Kita harus tetap berada di jalur utama dan tidak terpisah.\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.ngambek, text: "\"Yaaah, padahal seru kalau diperiksa dulu. Ya sudahlah...\"", jump: "quest_loker_end" },
+
+            { id: "quest_loker_investigate", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "Aku melangkah mendekati deretan loker tua itu. Tempat mana yang harus kuperiksa?", choices: [
+                { text: "Lihat samping loker", jump: "safe_choice" },
+                { text: "Lihat jendela", jump: "jump_choice_1" },
+                { text: "Lihat dalam loker", jump: "jump_choice_2" },
+                { text: "Lihat tirai", jump: "jump_choice_3" }
+            ]},
+
+            { id: "jump_choice_1", jumpscare: true, speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, shake: true, text: "(Sesuatu melompat tepat di depan wajahku!) \"HWAAA! ASTAGA!\"", jump: "quest_loker_end" },
+            { id: "jump_choice_2", jumpscare: true, speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, shake: true, text: "(Loker mendadak terbuka sendiri dan bayangan hitam menyambar!) \"AAARRGH!\"", jump: "quest_loker_end" },
+            { id: "jump_choice_3", jumpscare: true, speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, shake: true, text: "(Tirai tersingkap dan sesosok muka hancur menatapku erat!) \"HWAAA!\"", jump: "quest_loker_end" },
+
+            { id: "safe_choice", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Melihat dengan hati-hati ke samping loker) Tidak ada apa-apa di sini, hanya genangan air tua dan tumpukan buku lapuk. Aman." },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Menghela napas panjang) \"Bayangan itu... baru saja bergeser... Tapi syukurlah kamu baik-baik saja, Dio...\"", jump: "quest_loker_end" },
+
+            { id: "quest_loker_end", bg: "assets/images/bg/wahyu_koridor.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Meski kejadian di lobi tadi cukup mengguncang mental, terutama bagi Duwi dan Dinda, Riko bersikeras agar kami terus maju. Cahaya senter kami menyapu lorong sekolah yang panjang, berdebu, dan dipenuhi sarang laba-laba. Suasananya benar-benar mencekam." },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Berhenti melangkah, menyilangkan kaki sambil memegangi perutnya) \"Aduh... guys, tunggu bentar.\"" },
+            { speaker: "Duwi", spriteLeft: CHAR_ASSETS.dinda.takut, spriteRight: CHAR_ASSETS.duwi.marah, text: "(Menoleh) \"Kenapa lagi, Din? Jangan bilang kamu lihat hantu lagi!\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Wajahnya memerah malu campur panik) \"Bukan! Aku... aku kebelet pipis nih. Sumpah, nggak tahan lagi dari tadi nahan takut!\"" },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.senyum, text: "(Tertawa pelan) \"Yaelah, Din. Timing-mu jelek banget sih. Ya udah, cari toilet gih.\"" },
+            { speaker: "Dinda", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.dinda.takut, text: "(Menarik ujung jaket Dio) \"Dio, temenin dong! Aku nggak berani sendirian, apalagi tadi ada kejadian di loker.\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menghela napas pasrah) \"Ya, ya, ayo. Kalian tunggu di sini sebentar, jangan ke mana-mana.\"" },
+            { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "\"Jangan lama-lama. Kami tunggu di persimpangan lorong ini.\"" },
+            { bg: "assets/images/bg/wahyu_toilet.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Kami menemukan toilet perempuan tak jauh dari sana. Namun, ada satu hal aneh yang langsung membuatku merinding. Di saat seluruh lorong ini gelap gulita dan hanya mengandalkan cahaya senter kami... entah kenapa, area di dalam kamar mandi ini terlihat jauh lebih terang. Bukan karena lampu menyala, tapi seperti ada pendaran cahaya pucat dari ubinnya sendiri." },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Ragu-ragu berdiri di ambang pintu) \"Dio... kok toiletnya agak terang, ya? Dibanding ruangan lain...\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Mungkin pantulan cahaya bulan dari ventilasi. Udah, buruan masuk. Aku jaga di luar pintu.\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Masuk perlahan ke dalam) \"Dio... jangan tinggalkan aku ya! Tunggu di situ aja!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Tersenyum iseng, menyandarkan punggung ke dinding) \"Iya, iya. Jangan lama-lama, entar kutinggal beneran lho.\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Berteriak dari dalam) \"JANGAN DONG!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Beberapa detik berlalu dalam keheningan. Namun tiba-tiba...\nSuara tawa wanita terdengar hihihi" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Dari dalam kamar mandi, panik) \"Dio?! Kamu dengar itu?!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Dengar apa? Udah kelar belum?\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Monolog Batin) Aku mendengar suara tertawa tapi saat ku tanya ke dio sepertinya gak denger dia nya." },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Berlari keluar dengan wajah sangat palid) \"Udah! Ayo balik, cepetan!\"" },
+            { bg: "assets/images/bg/wahyu_koridor.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Eriko, Raka, Duwi, dan Elisa menoleh ke arah Dio dan Dinda yang datang." },
+            { speaker: "Dinda", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.dinda.takut, text: "(Napasnya terengah-engah, memegang lengan Dio erat) \"Dio... kamu tadi dengar sesuatu nggak di WC?\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Mencoba mencairkan suasana) \"Ya kan kamu yang di dalam kamar mandi, aku di luar. Aku mana tau ada suara apa.\"" },
+            { speaker: "Dinda", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.dinda.ngambek, text: "(Cemberut, memukul bahu Dio pelan) \"Ihh! Kamu malah bercanda! Aku serious, Dio!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Kembali serius) \"Enggak kok, memangnya suara apa, Din?\"" },
+            { speaker: "Eriko", spriteLeft: CHAR_ASSETS.dinda.takut, spriteRight: CHAR_ASSETS.eriko.senyum, text: "(Mendekat dengan mata berbinar penasaran, menodongkan kamera) \"Wah, ada apa nih? Ada apa? Dapat fenomena apa kamu di dalam, Din?\"" },
+            { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Menelan ludah, suaranya bergetar) \"Pas aku lagi pipis... aku dengar kayak suara ketawa. Tapi agak samar-samar gitu... suaranya kayak suara perempuan.\"" },
+            { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Melompat mundur, langsung memegang kepalanya) \"Tuh k-kan! Aduh guys, mending kita pulang aja yuk! Ini tempatnya udah nggak bener! Kita lanjutkan aja besok, kalau udah siang aja eksplorasinya!\"" },
+            { speaker: "Eriko", spriteLeft: CHAR_ASSETS.duwi.takut, spriteRight: CHAR_ASSETS.eriko.marah, text: "(Mendecakkan lidah, menepuk jidat Duwi) \"Aduh, Duwi, Duwi... mana ada ekspedisi horor siang-siang bolong! Namanya juga uji nyali, ya malam lah!\"" },
+            { bgm: "assets/music/tema3.mp3", speaker: "Duwi & Dinda", sprite: CHAR_ASSETS.duwi.takut, text: "\"HWAAAAA!\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Suara benda jatuh yang sangat keras dan berat tiba-tiba terdengar dari Ruang Kelas 1 yang berada tepat di sebelah kami. Semuanya langsung terdiam kaku. Napas tertahan." },
+            { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.netral, text: "(Wajahnya sempat pias sedetik, lalu dipaksakan tersenyum sombong) \"A-alah... paling tikus lagi loh itu. Tikus got kan gede-gede.\"" },
+            { speaker: "Raka", spriteLeft: CHAR_ASSETS.eriko.netral, spriteRight: CHAR_ASSETS.raka.marah, text: "(Menatap Eriko tajam) \"Tikus tidak menjatuhkan lemari besi, Riko. Suara tadi terlalu berat. Kita butuh tempat untuk menyusun rencana ulang sebelum bergerak lebih jauh.\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Raka benar. Tetap waspada. Kita cari ruangan tertutup yang bisa dipakai buat istirahat sebentar dan berlindung.\"" },
+            { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Kami menyusuri lorong dengan cepat dan hati-hati, hingga akhirnya menemukan perpustakaan di ujung sayap kiri. Ruangan ini tidak memiliki banyak jendela, sehingga terasa sedikit lebih tertutup dari pandangan luar." },
+            { bgm: "assets/music/tema_mengelidiki.mp3", bg: "assets/images/bg/wahyu_perpus.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menyorotkan senter ke tengah ruangan) \"Baiklah, kita istirahat dulu di sini. Atur napas kalian. Kita harus bicarakan mau ekspedisi dari mana dulu, dan membagi rute evakuasi kalau terjadi apa-apa.\"" },
+            { speaker: "Elisa", spriteLeft: CHAR_ASSETS.dio.netral, spriteRight: CHAR_ASSETS.elisa.senyum, text: "(Mengangguk pelan kepada Dio, setuju) \"Iya, aku setuju.\"" },
+            { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.netral, text: "(Monolog Batin) Baguslah kita masuk ke sini... Dari semua tempat di sekolah ini yang dipenuhi aura merah mengerikan, sepertinya ruangan ini satu-satunya yang paling aman. Entah kenapa, makhluk-makhluk itu tidak berani mendekati perpustakaan ini.", endEpisode: true }
+        ];
+
+        let currentEpisodeData = [];
+        let currentEpisodeNum = 1;
+        let currentIndex = 0;
+        let unlockedEpisodes = 1;
+        let isWaitingForChoice = false;
+
+        let isAutoActive = false;
+        let isSkipActive = false;
+        let autoTimer = null;
+        let skipTimer = null;
+        let dialogueHistory = []; 
+
+        let typewriterTimer = null;
+        let isTyping = false;
+        let currentFullText = "";
+
+        window.onload = () => {
+            let saved = localStorage.getItem('yumeid_unlocked');
+            if(saved) { unlockedEpisodes = parseInt(saved); updateEpisodeMenu(); }
+            startSplashSequence();
+        };
+
+        function reqFullscreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(e => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen().catch(e => {});
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen().catch(e => {});
+            }
+            if(screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => {});
+            }
+        }
+
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                reqFullscreen();
+            }
+        });
+
+        async function startSplashSequence() {
+            const screens = ['splash-glitch', 'splash-logo', 'splash-warning', 'splash-age', 'splash-extra', 'splash-tap'];
+            for (let i = 0; i < screens.length - 1; i++) {
+                document.getElementById(screens[i]).classList.add('active');
+                await new Promise(r => setTimeout(r, 2500));
+                document.getElementById(screens[i]).classList.remove('active');
+                await new Promise(r => setTimeout(r, 500));
+            }
+            document.getElementById('splash-tap').classList.add('active');
+            document.getElementById('splash-tap').onclick = () => {
+                reqFullscreen();
+                document.getElementById('splash-container').classList.add('hidden');
+                showMainMenu();
+            };
+        }
+
+        function showMainMenu() { 
+            stopAutoSkip();
+            hideAllScreens(); 
+            document.getElementById('main-menu').classList.remove('hidden'); 
+            let video = document.getElementById('bg-video');
+            if(video) { video.play().catch(e => {}); }
+            playBGM("assets/music/bg_menu.mp3");
+        }
+        
+        function showEpisodeSelect() { hideAllScreens(); updateEpisodeMenu(); document.getElementById('episode-select').classList.remove('hidden'); }
+        function showExtras() { hideAllScreens(); document.getElementById('extras-screen').classList.remove('hidden'); }
+
+        function viewBiodata(filename) {
+            reqFullscreen();
+            let imgElem = document.getElementById('biodata-img');
+            imgElem.src = `assets/images/biodata/${filename}`;
+            document.getElementById('biodata-modal').classList.remove('hidden');
+        }
+
+        function closeBiodata() { document.getElementById('biodata-modal').classList.add('hidden'); }
+        
+        function updateEpisodeMenu() {
+            if(unlockedEpisodes >= 2) {
+                let ep2 = document.getElementById('ep2-btn');
+                ep2.classList.remove('locked');
+                ep2.innerText = "Episode 2: Menuju Desa Wahyusakti";
+            }
+        }
+
+        function hideAllScreens() {
+            ['main-menu', 'episode-select', 'game-screen', 'extras-screen', 'biodata-modal', 'jumpscare-overlay', 'pause-modal', 'log-modal', 'episode-end-screen', 'checkpoint-modal'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function startEpisode(epNum) {
+            if(epNum === 2 && unlockedEpisodes < 2) {
+                alert("Episode 2 masih terkunci! Selesaikan Episode 1 terlebih dahulu.");
+                return;
+            }
+            
+            currentEpisodeNum = epNum;
+            if(epNum === 1) currentEpisodeData = episode1;
+            else if(epNum === 2 && typeof episode2 !== 'undefined') currentEpisodeData = episode2;
+            else {
+                alert("Data Episode 2 belum dimuat. Pastikan file Episode2.js tidak kosong atau error.");
+                return;
+            }
+
+            currentIndex = 0;
+            dialogueHistory = [];
+            stopAutoSkip();
+            hideAllScreens();
+            document.getElementById('game-screen').classList.remove('hidden');
+            renderLine();
+        }
+
+        function autoSaveProgress() {
+            let saveData = { ep: currentEpisodeNum, idx: currentIndex, unlocked: unlockedEpisodes };
+            localStorage.setItem('yumeid_save', JSON.stringify(saveData));
+        }
+
+        function triggerShake() {
+            const gameScreen = document.getElementById('game-screen');
+            gameScreen.classList.remove('shake-effect');
+            void gameScreen.offsetWidth;
+            gameScreen.classList.add('shake-effect');
+            setTimeout(() => { gameScreen.classList.remove('shake-effect'); }, 400);
+        }
+
+        function triggerJumpscare() {
+            playSFX("assets/sfx/jumpscere.mp3");
+            const jsOverlay = document.getElementById('jumpscare-overlay');
+            jsOverlay.classList.remove('hidden');
+            triggerShake();
+            setTimeout(() => { jsOverlay.classList.add('hidden'); }, 800);
+        }
+
+        function renderLine() {
+            if (currentIndex >= currentEpisodeData.length) return;
+            let line = currentEpisodeData[currentIndex];
+
+            // LOGIKA AUDIO BGM & SFX
+            if (line.stopBgm) {
+                stopBGM();
+            } else if (line.bgm) {
+                playBGM(line.bgm);
+            }
+
+            if (line.sfx) {
+                playSFX(line.sfx);
+            }
+
+            // LOGIKA CHECKPOINT PAKSA
+            if (line.isCheckpoint) {
+                isWaitingForChoice = true;
+                stopAutoSkip();
+                document.getElementById('tap-overlay').classList.add('hidden');
+                document.getElementById('checkpoint-modal').classList.remove('hidden');
+                return; 
+            }
+
+            if (typewriterTimer) clearInterval(typewriterTimer);
+            isTyping = false;
+
+            autoSaveProgress();
+
+            if (line.jumpscare) triggerJumpscare();
+            if (line.bg) document.getElementById('game-bg').style.backgroundImage = `url('${line.bg}')`;
+            
+            document.getElementById('speaker-text').innerText = line.speaker;
+            
+            let fullText = line.text;
+            let actionText = "";
+            let dialogueContent = fullText;
+
+            let match = fullText.match(/^\((.*?)\)\s*(.*)/);
+            if (match) {
+                actionText = `[ ${match[1]} ]`;
+                dialogueContent = match[2];
+            }
+
+            document.getElementById('action-tag').innerText = actionText;
+            currentFullText = dialogueContent;
+
+            if(dialogueHistory.length === 0 || dialogueHistory[dialogueHistory.length - 1].text !== fullText) {
+                dialogueHistory.push({ speaker: line.speaker, text: fullText });
+            }
+
+            const sLeft = document.getElementById('sprite-left');
+            const sRight = document.getElementById('sprite-right');
+
+            [sLeft, sRight].forEach(s => s.classList.add('hidden'));
+
+            if (line.sprite) {
+                sRight.src = line.sprite;
+                sRight.classList.remove('hidden');
+            } else {
+                if (line.spriteLeft) { sLeft.src = line.spriteLeft; sLeft.classList.remove('hidden'); }
+                if (line.spriteRight) { sRight.src = line.spriteRight; sRight.classList.remove('hidden'); }
+            }
+
+            const surpriseKeywords = ["HAAAH", "HWAAAAA", "JANTUNGAN", "GILA", "AKH", "MATI", "AAARRGH", "ASTAGA", "KYAAAA"];
+            if (line.shake || surpriseKeywords.some(kw => fullText.toUpperCase().includes(kw))) {
+                triggerShake();
+            }
+
+            typewriterEffect(dialogueContent, () => {
+                if (line.choices) {
+                    isWaitingForChoice = true;
+                    stopAutoSkip();
+                    document.getElementById('tap-overlay').classList.add('hidden');
+                    showChoices(line.choices);
+                } else {
+                    isWaitingForChoice = false;
+                    document.getElementById('tap-overlay').classList.remove('hidden');
+                    
+                    if (isAutoActive) {
+                        clearTimeout(autoTimer);
+                        autoTimer = setTimeout(() => { progressStory(); }, 2800);
+                    } else if (isSkipActive) {
+                        clearTimeout(skipTimer);
+                        skipTimer = setTimeout(() => { progressStory(); }, 80);
+                    }
+                }
+
+                if(line.endEpisode) completeEpisode();
+            });
+        }
+
+        function typewriterEffect(text, onComplete) {
+            const dialogueElem = document.getElementById('dialogue-text');
+            dialogueElem.innerText = "";
+            
+            if (isSkipActive) {
+                dialogueElem.innerText = text;
+                if (onComplete) onComplete();
+                return;
+            }
+
+            isTyping = true;
+            let charIndex = 0;
+            const speed = 25; 
+
+            typewriterTimer = setInterval(() => {
+                if (charIndex < text.length) {
+                    dialogueElem.innerText += text.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(typewriterTimer);
+                    isTyping = false;
+                    if (onComplete) onComplete();
+                }
+            }, speed);
+        }
+
+        function showChoices(choices) {
+            let container = document.getElementById('choice-container');
+            container.innerHTML = ''; container.classList.remove('hidden');
+            choices.forEach(c => {
+                let btn = document.createElement('button');
+                btn.className = 'choice-btn'; btn.innerText = c.text;
+                btn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    reqFullscreen();
+                    
+                    if(c.setVar) {
+                        localStorage.setItem(c.setVar.key, c.setVar.value);
+                    }
+                    
+                    makeChoice(c.jump); 
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function makeChoice(jumpId) {
+            document.getElementById('choice-container').classList.add('hidden');
+            let targetIndex = currentEpisodeData.findIndex(line => line.id === jumpId);
+            currentIndex = (targetIndex !== -1) ? targetIndex : currentIndex + 1;
+            renderLine();
+        }
+
+        function progressStory() {
+            if (isWaitingForChoice) return;
+
+            if (isTyping) {
+                clearInterval(typewriterTimer);
+                document.getElementById('dialogue-text').innerText = currentFullText;
+                isTyping = false;
+
+                let currentLine = currentEpisodeData[currentIndex];
+                if (currentLine.choices) {
+                    isWaitingForChoice = true;
+                    stopAutoSkip();
+                    document.getElementById('tap-overlay').classList.add('hidden');
+                    showChoices(currentLine.choices);
+                }
+                return;
+            }
+
+            let currentLine = currentEpisodeData[currentIndex];
+            
+            if (currentLine.endEpisode) {
+                completeEpisode();
+                return;
+            }
+
+            if (currentLine.jump && currentLine.jump !== 'merge' && currentLine.jump !== 'quest_loker_end') {
+                let targetIndex = currentEpisodeData.findIndex(line => line.id === currentLine.jump);
+                currentIndex = (targetIndex !== -1) ? targetIndex : currentIndex + 1;
+            } else { 
+                currentIndex++; 
+            }
+            
+            if (currentIndex < currentEpisodeData.length && currentEpisodeData[currentIndex].endEpisode) {
+                renderLine();
+                completeEpisode();
+                return;
+            }
+
+            renderLine();
+        }
+
+        function saveSpecialCheckpoint() {
+            let cpData = { ep: currentEpisodeNum, idx: currentIndex + 1, unlocked: unlockedEpisodes };
+            localStorage.setItem('yumeid_checkpoint', JSON.stringify(cpData));
+            
+            document.getElementById('checkpoint-modal').classList.add('hidden');
+            isWaitingForChoice = false;
+            currentIndex++; 
+            renderLine(); 
+        }
+
+        function completeEpisode() {
+            playBGM("assets/music/tema_end_game.mp3");
+            document.getElementById('end-screen-title').innerText = `EPISODE ${currentEpisodeNum}`;
+            
+            if(currentEpisodeNum === 1) {
+                localStorage.setItem('yumeid_completed_ep1', 'true');
+                if(unlockedEpisodes < 2) { 
+                    unlockedEpisodes = 2; 
+                    localStorage.setItem('yumeid_unlocked', unlockedEpisodes); 
+                }
+            } else if (currentEpisodeNum === 2) {
+                localStorage.setItem('yumeid_completed_ep2', 'true');
+            }
+
+            stopAutoSkip();
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('episode-end-screen').classList.remove('hidden');
+        }
+
+        function nextEpisodeAction() {
+            if(currentEpisodeNum === 1) {
+                document.getElementById('episode-end-screen').classList.add('hidden');
+                startEpisode(2);
+            } else {
+                alert("Terima kasih telah memainkan demo YumeID sampai Episode ini!");
+                showMainMenu();
+            }
+        }
+
+        function restartCurrentEpisode() {
+            document.getElementById('episode-end-screen').classList.add('hidden');
+            startEpisode(currentEpisodeNum);
+        }
+
+        function stopAutoSkip() {
+            isAutoActive = false;
+            isSkipActive = false;
+            clearTimeout(autoTimer);
+            clearTimeout(skipTimer);
+            document.getElementById('auto-btn').classList.remove('active-mode');
+            document.getElementById('skip-btn').classList.remove('active-mode');
+        }
+
+        function toggleAuto() {
+            if (isWaitingForChoice) return;
+            if (isAutoActive) {
+                stopAutoSkip();
+            } else {
+                stopAutoSkip();
+                isAutoActive = true;
+                document.getElementById('auto-btn').classList.add('active-mode');
+                progressStory();
+            }
+        }
+
+        function toggleSkip() {
+            let hasCompleted = localStorage.getItem(currentEpisodeNum === 1 ? 'yumeid_completed_ep1' : 'yumeid_completed_ep2');
+            if (!hasCompleted) {
+                alert("Fitur SKIP terkunci! Kamu harus menyelesaikan episode ini minimal satu kali terlebih dahulu.");
+                return;
+            }
+
+            if (isWaitingForChoice) return;
+            if (isSkipActive) {
+                stopAutoSkip();
+            } else {
+                stopAutoSkip();
+                isSkipActive = true;
+                document.getElementById('skip-btn').classList.add('active-mode');
+                progressStory();
+            }
+        }
+
+        function openLog() {
+            stopAutoSkip();
+            let logContent = document.getElementById('log-content');
+            logContent.innerHTML = '';
+
+            dialogueHistory.forEach(item => {
+                let entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<div class="log-speaker">${item.speaker}</div><div>${item.text}</div>`;
+                logContent.appendChild(entry);
+            });
+
+            document.getElementById('log-modal').classList.remove('hidden');
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function closeLog() { document.getElementById('log-modal').classList.add('hidden'); }
+
+        function openPauseMenu() {
+            stopAutoSkip();
+            document.getElementById('pause-modal').classList.remove('hidden');
+        }
+
+        function resumeGame() { document.getElementById('pause-modal').classList.add('hidden'); }
+
+        function saveGameInGame() {
+            autoSaveProgress();
+            alert("Progres biasa berhasil disimpan!");
+        }
+
+        function loadGameInGame() {
+            let stateStr = localStorage.getItem('yumeid_save');
+            if(stateStr) {
+                loadGameData(stateStr);
+            } else alert("Tidak ada data simpanan biasa yang ditemukan.");
+        }
+
+        function loadCheckpointInGame() {
+            let stateStr = localStorage.getItem('yumeid_checkpoint');
+            if(stateStr) {
+                if(confirm("Yakin ingin memuat data Checkpoint? Kamu akan kembali ke saat sebelum mengambil keputusan penting.")) {
+                    loadGameData(stateStr);
+                }
+            } else alert("Kamu belum memiliki data Checkpoint.");
+        }
+
+        function loadGameData(stateStr) {
+            let state = JSON.parse(stateStr);
+            unlockedEpisodes = state.unlocked || 1;
+            updateEpisodeMenu();
+            
+            let epToLoad = state.ep || 1;
+            if (epToLoad === 2 && typeof episode2 === 'undefined') {
+                 alert("Save data ada di Episode 2, tapi file Episode2.js tidak dimuat dengan benar.");
+                 return;
+            }
+            
+            resumeGame();
+            startEpisode(epToLoad);
+            currentIndex = state.idx || 0;
+            renderLine();
+        }
+
+        function exitToMainMenu() {
+            if (confirm("Apakah Anda yakin ingin keluar ke Menu Utama? Progres terakhir telah tersimpan secara otomatis.")) {
+                resumeGame();
+                showMainMenu();
+            }
+        }
+
+        function loadGame() {
+            let stateStr = localStorage.getItem('yumeid_save');
+            if(stateStr) {
+                loadGameData(stateStr);
+            } else alert("Tidak ada data simpanan (save progress) yang ditemukan.");
+        }
+    </script>
+    
+    <script src="Episode2.js?v=5"></script>
+
+</body>
+</html>
