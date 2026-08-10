@@ -24,26 +24,26 @@ const episode2 = [
     { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Gelisah, menggigit jari-jarinya) \"Tuh kan! Tuh kan! Ada yang gak beres! Pulang ayooo!\"" },
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Berusaha mengambil alih situasi) \"Semuanya tenang! Baiklah, kita pindah ruangan saja. Jangan berdiam di satu tempat. Dinda, bawa kuncinya. Siapa tahu nanti kita butuh itu untuk keluar atau membuka sesuatu.\"" },
     
-    // --- FITUR CHECKPOINT DIMULAI DI SINI ---
+    // Checkpoint
     { isCheckpoint: true }, 
     { bgm: "assets/music/tema2.mp3", speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Menatap kunci berkarat di tangannya dengan gemetar) \"A-aku takut, Dio. Barang dari tempat ini auranya nggak enak. Gimana nih?\"", choices: [
         { text: "Simpan kuncinya. Kita pasti butuh nanti. (Beresiko)", jump: "bawa_kunci", setVar: { key: "punya_kunci", value: "true" } },
         { text: "Buang saja! Benda itu mungkin pembawa sial!", jump: "buang_kunci", setVar: { key: "punya_kunci", value: "false" } }
     ]},
 
-    // CABANG 1: BAWA KUNCI (Jumpscare)
+    // Cabang 1: Bawa Kunci
     { id: "bawa_kunci", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Simpan saja, Din. Masukkan ke sakumu rapat-rapat. Firasatku bilang kita bakal butuh kunci itu untuk keluar nanti.\"" },
     { jumpscare: true, speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, shake: true, text: "(Memasukkan kunci ke sakunya, namun tiba-tiba sesuatu menggedor keras kaca jendela tepat di sebelahnya!) \"HWAAAAA!\"" },
     { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, shake: true, text: "(Melompat memeluk Raka) \"ASTAGA! APA ITU DI JENDELA?!\"" },
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, text: "(Monolog) Sesuatu dengan wajah hancur baru saja menempel di kaca jendela sedetik yang lalu sebelum menghilang. Jantungku berpacu gila-gilaan." },
     { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Menangis pelan) \"Kuncinya... kuncinya sudah kusimpan, Dio. Ayo kita cepat pergi dari ruangan ini!\"", jump: "lanjut_lorong" },
 
-    // CABANG 2: BUANG KUNCI (Tanpa Jumpscare)
+    // Cabang 2: Buang Kunci
     { id: "buang_kunci", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Kamu benar, Din. Buang saja. Benda berkarat dari sekolah terkutuk ini lebih baik nggak usah dibawa-bawa.\"" },
     { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.netral, text: "(Melempar kunci itu kuat-kuat ke sudut gelap perpustakaan) \"Udah! Aku buang! Ayo kita pergi dari sini!\"" },
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Kunci tua itu berdenting jauh di dalam kegelapan perpustakaan. Tidak ada hal aneh yang terjadi. Kami semua menghela napas lega sesaat.", jump: "lanjut_lorong" },
 
-    // MERGE POINT: KELUAR PERPUSTAKAAN
+    // Merge Point: Keluar Perpustakaan
     { id: "lanjut_lorong", bgm: "assets/music/alam_gaib.mp3", bg: "assets/images/bg/wahyu_koridor.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Kami segera keluar dari perpustakaan dan kembali menyusuri lorong. Tak jauh dari sana, kami menemukan sebuah pintu yang terbuka separuh. Ada tulisan pudar di atasnya: 'RUANG GURU'." },
     { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Langkahnya terhenti, memegangi kepalanya) \"Aku merasa... ada sesuatu di sini. Di dalam ruangan ini.\"" },
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menatap teman-temannya dengan tegas) \"Semuanya, dengar. Kita jangan sampai terpisah ya. Jangan sampai lalai dan terus waspada.\"" },
@@ -62,6 +62,47 @@ const episode2 = [
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Jantungku berdegup kencang. Aku segera menoleh ke belakang, menyodorkan cahaya senterku." },
     { bgm: "assets/music/tema_momen_sedih.mp3", speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, text: "(Terbelalak ngeri) \"Loh... Duwi mana?\"" },
     { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Dinda, Eriko, dan Raka menoleh ke belakang dengan wajah kaget luar biasa." },
-    { speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, text: "(Monolog) Di belakang kami, lorong itu kosong melompong. Tidak ada tanda-tanda keberadaan Duwi. Teman kami itu menghilang entah ke mana, tanpa suara sama sekali.\"" },
-    { endEpisode: true }
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, text: "(Monolog) Di belakang kami, lorong itu kosong melompong. Tidak ada tanda-tanda keberadaan Duwi. Teman kami itu menghilang entah ke mana, tanpa suara sama sekali." },
+
+    // Pencarian & Lobi
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Hilangnya Duwi membuat kepanikan di antara kami mencapai puncaknya. Tanpa membuang waktu, kami langsung memutuskan untuk kembali mencari keberadaannya." },
+    { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Gemetar ketakutan, mencengkeram tangan Dio sekuat tenaga tanpa mau melepaskannya sedetik pun) \"Dio... jangan lepaskan tanganku. Sumpah, aku takut banget...\"" },
+    { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "(Sambil menggendong Elisa di punggungnya, berusaha mengatur napasnya yang berat) \"Bertahanlah, Elisa. Kita harus keluar dari sini bersama-sama.\"" },
+    { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.takut, text: "(Wajah pucat pasi, terus menoleh ke belakang dengan panik) \"Aduh, gimana ini?! Si Duwi ke mana sih, kok bisa-bisanya terpisah begini?!\"" },
+    { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "\"Tenanglah, Riko. Panik tidak akan menyelesaikan apa-apa. Yang penting kita cari dulu ke arah perpustakaan.\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Kami memutuskan untuk nekat kembali ke perpustakaan tempat kami tadi beristirahat. Kali ini kami berjalan dengan sangat pelan dan waspada, tidak lagi berlari agar tidak kehilangan arah di lorong yang berputar ini." },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menyorotkan senter ke seluruh sudut ruangan) \"Kosong... Duwi tidak ada di sini.\"" },
+    { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Menatap Elisa yang masih memegangi kepalanya) \"Elisa... sebenarnya kenapa kamu tiba-tiba sakit kepala hebat tadi waktu kita di Ruang Guru?\"" },
+    { speaker: "Elisa", sprite: CHAR_ASSETS.elisa.takut, text: "(Suaranya melemah, bersandar di bahu Raka) \"Rasanya... aneh... Seperti ada kekuatan tak kasat mata yang menyerap sesuatu dari tubuh kita di ruangan itu...\"" },
+    { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.netral, text: "(Mengerutkan dahi) \"Menyerap? Menyerap apa maksudmu, Sa?\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Matanya membelalak, langsung menyadari sesuatu) \"Tunggu... Kalau ada yang diserap... Jangan-jangan Duwi...\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Semuanya, dengar! Kita harus kembali ke Ruang Guru sekarang juga! Mungkin Duwi tersesat atau ditarik ke sana!\"" },
+    { speaker: "Raka", sprite: CHAR_ASSETS.raka.netral, text: "\"Lalu bagaimana dengan Duwi kalau kita malah mondar-mandir?!\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Aku yakin Duwi masih bisa kita selamatkan, tapi kita tidak boleh gegabah. Ini sudah jam setengah tiga pagi! Kita harus keluar dulu dan kembali lagi besok!\"" },
+    { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.takut, text: "(Menunduk, air matanya nyaris tumpah karena rasa bersalah) \"Ini salahku... Kalau saja aku tidak keras kepala dan mengajak kalian ke sekolah terkutuk ini, Duwi pasti tidak bakal hilang...\"" },
+    
+    { bg: "assets/images/bg/wahyu_lobi.png", speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Dengan perasaan hancur dan panik, kami bergegas menyusuri jalan mundur menuju lobi utama untuk segera keluar dari gedung ini. Namun, setibanya di lobi, langkah kami langsung terhenti kaku." },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.takut, text: "(Monolog) Anak perempuan kecil pucat bergaun lusuh yang sama muncul berdiri tepat di tengah lobi." },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Menatap kami dengan tatapan kosong) \"Sudah kuberi tahu... Aku sudah memperingatkan kalian. Tapi kalian tidak dengar, dan sekarang semuanya sudah terjadi.\"" },
+    { speaker: "Raka", sprite: CHAR_ASSETS.raka.marah, text: "(Maju selangkah dengan emosi meluap-luap) \"Sebenarnya siapa kamu—?!\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Menahan lengan Raka dengan cepat) \"Raka, tunggu!\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Aku melangkah maju, lalu berjongkok perlahan di depan gadis kecil itu agar sejajar dengannya. Kuatur napas dan suaraku setenang mungkin." },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "\"Lalu... apa kamu tahu di mana teman kami sekarang?\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Menunjuk ke arah dinding lorong yang tertutup kabut tipis) \"Dia ada di dalam kabut kegelapan. Tadi saat kalian terpisah, dia tanpa sengaja masuk ke ruangan gaib dan terjebak di sana.\"" },
+    { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Menangis tersedu-sedu) \"Ya ampun... Apakah dia baik-baik saja di dalam sana?!\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "\"Iya... teman kalian masih baik-baik saja. Aku bisa melihatnya dari sini. Tapi... aku tidak bisa menolongnya, karena aku tidak diizinkan masuk ke ruang gaib itu.\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Mendengar penjelasan itu, kesadaran kami sepenuhnya terbuka. Tidak ada keraguan lagi—gadis kecil di hadapan kami ini sama sekali bukan manusia." },
+    { speaker: "Eriko", sprite: CHAR_ASSETS.eriko.takut, text: "(Suaranya bergetar, memohon) \"Kalau begitu... bagaimana caranya kami bisa menolongnya? Kumohon, beri tahu kami!\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "\"Tentu saja bisa... Tapi itu akan sangat sulit. Aku tidak tahu apakah kalian sanggup atau tidak.\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "\"Yang jelas... kembalilah besok malam. Aku akan menunggu kalian di sini.\"" },
+    { speaker: "Raka", sprite: CHAR_ASSETS.raka.marah, text: "(Panik) \"Apa tidak bisa kalau kami tolong sekarang juga?! Kami tidak bisa meninggalkannya sendirian di tempat menyeramkan ini!\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.marah, text: "(Suaranya meninggi, bernada dingin memperingatkan) \"Jangan keras kepala! Dengar... ini sudah hampir fajar. Pintu gaib atau yang sering disebut kabut gelap itu akan segera tertutup rapat. Jika kalian memaksakan diri sekarang, usaha kalian justru akan sia-sia dan kalian semua tidak akan bisa keluar.\"" },
+    { speaker: "Dinda", sprite: CHAR_ASSETS.dinda.takut, text: "(Memegang lengan Dio, mengangguk lemah) \"Dio... benar kata anak itu. Kita ikuti saja sarannya. Siapa tahu besok kita bisa bawa Duwi pulang dengan selamat...\"" },
+    { speaker: "Anak Kecil", spriteRight: CHAR_ASSETS.gadis_kecil.netral, text: "(Memalingkan wajahnya perlahan ke arah pintu keluar) \"Jangan khawatir. Teman kalian saat ini hanya sedang kebingungan di alam gaib... tapi nyawanya masih ada. Pergilah sekarang.\"" },
+    
+    // Background berubah ke ruang gaib (wahyu_ilusi.png) saat Duwi tersesat di dimensi lain
+    { bg: "assets/images/bg/wahyu_ilusi.png", speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, text: "(Monolog / Suara panik) (Berlari-lari tanpa arah di tempat yang asing, gelap, dan berkabut tebal)" },
+    { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, text: "(Napas terengah-engah, berteriak histeris) \"Hah... hah... Kenapa semuanya jadi aneh begini?! Pintu... kenapa ada banyak pintu melayang di udara?! Pintu-pintu ini tidak punya dinding!\"" },
+    { speaker: "Duwi", sprite: CHAR_ASSETS.duwi.takut, text: "(Menutup kedua telinganya, air mata menetes deras di pipinya) \"Aku di mana?! Teman-teman?! Dio! Riko! Raka! Kalian di mana?!\"" },
+    { speaker: "Dio", sprite: CHAR_ASSETS.dio.netral, text: "(Monolog) Di dimensi yang terisolasi itu, Duwi hanya bisa berlari kebingungan, berteriak memanggil nama kami, hingga akhirnya ia terduduk lemas di lantai karena kelelahan, terjebak sendirian dalam labirin tanpa ujung.", endEpisode: true }
 ];
